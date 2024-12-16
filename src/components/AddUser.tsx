@@ -1,48 +1,90 @@
-import { useState } from "react";
-
-type User = {
-  id: number;
-  name: string;
-  email: string;
-  role: string;
-};
+import { useState } from 'react';
 
 type AddUserProps = {
-  onAddUser: (user: User) => void;
+  onAddUser: (newUser: { name: string; email: string; role: string }) => void;
 };
 
 const AddUser = ({ onAddUser }: AddUserProps) => {
-  const [name, setName] = useState("");
-  const [email, setEmail] = useState("");
-  const [role, setRole] = useState("");
+  const [name, setName] = useState('');
+  const [email, setEmail] = useState('');
+  const [role, setRole] = useState('');
+  const [isFormValid, setIsFormValid] = useState(false);
 
-  const handleAddUser = () => {
-    const newUser: User = {
-      id: Date.now(), // Use a unique ID for simplicity
-      name,
-      email,
-      role,
-    };
-    onAddUser(newUser);
+  // Validate form
+  const validateForm = () => {
+    if (name && email && role) {
+      setIsFormValid(true);
+    } else {
+      setIsFormValid(false);
+    }
+  };
+
+  // Handle form input changes
+  const handleNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setName(e.target.value);
+    validateForm();
+  };
+
+  const handleEmailChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setEmail(e.target.value);
+    validateForm();
+  };
+
+  const handleRoleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setRole(e.target.value);
+    validateForm();
+  };
+
+  // Handle form submission
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (isFormValid) {
+      onAddUser({ name, email, role });
+      setName('');
+      setEmail('');
+      setRole('');
+    } else {
+      alert('Please fill in all fields');
+    }
   };
 
   return (
     <div>
-      <h1>Add User</h1>
-      <form onSubmit={(e) => e.preventDefault()}>
-        <label>
-          Name:
-          <input value={name} onChange={(e) => setName(e.target.value)} />
-        </label>
-        <label>
-          Email:
-          <input value={email} onChange={(e) => setEmail(e.target.value)} />
-        </label>
-        <label>
-          Role:
-          <input value={role} onChange={(e) => setRole(e.target.value)} />
-        </label>
-        <button onClick={handleAddUser}>Add User</button>
+      <h2>Add User</h2>
+      <form onSubmit={handleSubmit}>
+        <div>
+          <label>Name:</label>
+          <input
+            type="text"
+            value={name}
+            onChange={handleNameChange}
+            placeholder="Enter name"
+            required
+          />
+        </div>
+        <div>
+          <label>Email:</label>
+          <input
+            type="email"
+            value={email}
+            onChange={handleEmailChange}
+            placeholder="Enter email"
+            required
+          />
+        </div>
+        <div>
+          <label>Role:</label>
+          <input
+            type="text"
+            value={role}
+            onChange={handleRoleChange}
+            placeholder="Enter role"
+            required
+          />
+        </div>
+        <button type="submit" disabled={!isFormValid}>
+          Submit
+        </button>
       </form>
     </div>
   );
