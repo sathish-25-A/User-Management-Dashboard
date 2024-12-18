@@ -1,5 +1,5 @@
-import { useParams } from "react-router-dom";
-import { useState } from "react";
+import React, { useState } from 'react';
+import { useParams, useNavigate } from 'react-router-dom';
 
 type User = {
   id: number;
@@ -10,40 +10,62 @@ type User = {
 
 type EditUserProps = {
   users: User[];
+  onUpdateUser: (updatedUser: User) => void;
 };
 
-const EditUser = ({ users }: EditUserProps) => {
+const EditUser = ({ users, onUpdateUser }: EditUserProps) => {
   const { userId } = useParams<{ userId: string }>();
-  const user = users.find((u) => u.id === Number(userId));
+  const navigate = useNavigate();
 
-  const [name, setName] = useState(user?.name || "");
-  const [email, setEmail] = useState(user?.email || "");
-  const [role, setRole] = useState(user?.role || "");
+  // Find the user to edit
+  const userToEdit = users.find((user) => user.id === Number(userId));
+  if (!userToEdit) {
+    return <div>User not found</div>;
+  }
 
-  const handleSave = () => {
-    console.log("Updated User:", { id: user?.id, name, email, role });
-    // Update logic goes here
+  const [name, setName] = useState(userToEdit.name);
+  const [email, setEmail] = useState(userToEdit.email);
+  const [role, setRole] = useState(userToEdit.role);
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    const updatedUser: User = { ...userToEdit, name, email, role };
+    onUpdateUser(updatedUser);
+    navigate('/'); // Redirect to the home page after update
   };
-
-  if (!user) return <div>User not found!</div>;
 
   return (
     <div>
-      <h1>Edit User</h1>
-      <form onSubmit={(e) => e.preventDefault()}>
-        <label>
-          Name:
-          <input value={name} onChange={(e) => setName(e.target.value)} />
-        </label>
-        <label>
-          Email:
-          <input value={email} onChange={(e) => setEmail(e.target.value)} />
-        </label>
-        <label>
-          Role:
-          <input value={role} onChange={(e) => setRole(e.target.value)} />
-        </label>
-        <button onClick={handleSave}>Save</button>
+      <h2>Edit User</h2>
+      <form onSubmit={handleSubmit}>
+        <div>
+          <label>Name:</label>
+          <input
+            type="text"
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+            required
+          />
+        </div>
+        <div>
+          <label>Email:</label>
+          <input
+            type="email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            required
+          />
+        </div>
+        <div>
+          <label>Role:</label>
+          <input
+            type="text"
+            value={role}
+            onChange={(e) => setRole(e.target.value)}
+            required
+          />
+        </div>
+        <button type="submit">Save</button>
       </form>
     </div>
   );
